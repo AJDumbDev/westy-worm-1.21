@@ -8,8 +8,8 @@
 		"AJDumbDev"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "",
+		"sources": "https://github.com/AJDumbDev/westy-worm-1.21"
 	},
 	"license": "MIT",
 	"icon": "assets/westy-worm/icon.png",
