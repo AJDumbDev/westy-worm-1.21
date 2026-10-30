@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "westy-worm",
+	"version": "${version}",
+	"name": "Westy Worm",
+	"description": "This is a Westy Worm Mod by AJDumbDev",
+	"authors": [
+		"AJDumbDev"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/westy-worm/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.ajdumbdev.westyworm.WestyWorm"
+		],
+		"fabric-datagen": [
+			"net.ajdumbdev.westyworm.WestyWormDataGenerator"
+		],
+		"client": [
+			"net.ajdumbdev.westyworm.WestyWormClient"
+		]
+	},
+	"mixins": [
+		"westy-worm.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
