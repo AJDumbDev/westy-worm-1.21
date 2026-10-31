@@ -9,6 +9,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.HostileEntity;
@@ -16,11 +17,14 @@ import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.VindicatorEntity;
 import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
@@ -50,6 +54,7 @@ public class WestyWormEntity extends HostileEntity {
         this.goalSelector.add(1, new MeleeAttackGoal(this,1.0,false));
         this.targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, false));
         this.targetSelector.add(2, new ActiveTargetGoal<>(this, VillagerEntity.class, false ));
+        this.targetSelector.add(3, new ActiveTargetGoal<>(this, IronGolemEntity.class, true ));
         this.goalSelector.add(3, new WanderAroundFarGoal(this,1.00));
         this.goalSelector.add(4, new LookAtEntityGoal(this, PlayerEntity.class,10.0F));
         this.goalSelector.add(5, new LookAroundGoal(this));
@@ -57,9 +62,9 @@ public class WestyWormEntity extends HostileEntity {
 
     public static DefaultAttributeContainer.Builder createAttributes() {
         return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MAX_HEALTH,10)
+                .add(EntityAttributes.GENERIC_MAX_HEALTH,20.0f)
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED,0.35)
-                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE,3)
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE,5.0f)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE,50)
                 .add(EntityAttributes.GENERIC_STEP_HEIGHT,1);
 
@@ -84,6 +89,22 @@ public class WestyWormEntity extends HostileEntity {
     }
 
     @Override
+    public void onDeath(DamageSource damageSource) {
+        ItemStack milk = new ItemStack(Items.MILK_BUCKET, 1);
+        ItemEntity itemEntity = new ItemEntity(
+                this.getWorld(),
+                this.getX(),
+                this.getY(),
+                this.getZ(),
+                milk
+        );
+        itemEntity.setCustomName(Text.literal("Rollout's Milk"));
+        itemEntity.setCustomNameVisible(true);
+        this.getWorld().spawnEntity(itemEntity);
+        super.onDeath(damageSource);
+    }
+
+    @Override
     public boolean tryAttack(Entity target) {
         if (super.tryAttack(target)) {
             if (target instanceof LivingEntity) {
@@ -97,10 +118,14 @@ public class WestyWormEntity extends HostileEntity {
 
     @Override
     public @Nullable EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        float randomScale = 0.25f + this.random.nextFloat() * 0.5f;
+        float randomScale = 0.25f + this.random.nextFloat() * 0.75f;
         EntityAttributeInstance scaleAttribute = this.getAttributeInstance(EntityAttributes.GENERIC_SCALE);
+        EntityAttributeInstance damageAttribute = this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+        EntityAttributeInstance healthAttribute = this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
         if (scaleAttribute != null) {
             scaleAttribute.setBaseValue(randomScale);
+            damageAttribute.setBaseValue(5.0f*randomScale);
+            healthAttribute.setBaseValue(20.0f*randomScale);
         }
         return super.initialize(world, difficulty, spawnReason, entityData);
     }
